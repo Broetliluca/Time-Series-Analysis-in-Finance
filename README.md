@@ -20,3 +20,11 @@ https://www.blackrock.com/uk/individual/products/318925/ishares-msci-europe-pari
 **Data Quality** 
 - Daily data since Fund has been mad in 2021
 - Date, Curreny (EUR), NAV per Share, Share Outstanding, Total Net Assets, Fund Return Series, Benchmark Return Series
+
+### STOXX-Europe-600-Oil--Gas-UCITS-ETF-DE_fund
+**Description**
+https://www.ishares.com/ch/privatkunden/de/produkte/251954/ishares-stoxx-europe-600-oil-gas-ucits-etf-de-fund#/
+
+**Data Quality** 
+- Daily data since Fund has been mad in arround 2002
+- Date, Curreny (EUR), NAV per Share, Share Outstanding, Total Net Assets, Fund Return Series, Benchmark Return Series
