@@ -1,6 +1,21 @@
 # Time-Series-Analysis-in-Finance
 Shared Folder for Study Project
 
+## Group members of the assessment
+- Mattia Bettoja
+- Luca Signorini
+
+## General idea of the case study
+**Einfluss von CO₂-Zertifikatpreisen auf die Renditen oder Preise von Renewable Energy und/oder green ETFs**
+
+## Brief description of the data and data sources to be used
+- CO₂-Zertifikatpreise -> EU ETS
+- MSCI Europ Paris Align Climat ETF -> Hypothesis: Positive corelation
+- STOXX-Europe-600 Oil-Gas ETF -> Hypothesis: Negative correlation
+
+## Brief description of the method to be used (optional)
+- TBD
+
 
 ## DATA
 ### icap-graph-price 2019-2025
@@ -24,6 +39,10 @@ https://www.blackrock.com/uk/individual/products/318925/ishares-msci-europe-pari
 ### STOXX-Europe-600-Oil--Gas-UCITS-ETF-DE_fund
 **Description**
 https://www.ishares.com/ch/privatkunden/de/produkte/251954/ishares-stoxx-europe-600-oil-gas-ucits-etf-de-fund#/
+
+## Understanding of ETF Flow
+<img width="470" height="228" alt="image" src="https://github.com/user-attachments/assets/0bc3656d-5ec1-4c01-9629-f71ac589e9e9" />
+
 
 **Data Quality** 
 - Daily data since Fund has been mad in arround 2002
