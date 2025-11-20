@@ -6,14 +6,14 @@ Shared Folder for Study Project
 - Luca Signorini
 
 ## General idea of the case study
-**Einfluss von CO₂-Zertifikatpreisen auf die Renditen oder Preise von Renewable Energy und/oder green ETFs**
+**Einfluss von CO₂-Zertifikatpreisen auf die Renditen oder Preise von "nachhaltigen" ETF's und fossil-lastigen ETF's**
 
 ## Brief description of the data and data sources to be used
 - CO₂-Zertifikatpreise -> EU ETS
 - MSCI Europ Paris Align Climat ETF -> Hypothesis: Positive corelation
 - STOXX-Europe-600 Oil-Gas ETF -> Hypothesis: Negative correlation
 
-## Brief description of the method to be used (optional)
+## Brief description of the method to be used
 - TBD
 
 
