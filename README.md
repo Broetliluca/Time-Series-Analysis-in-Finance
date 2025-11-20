@@ -40,10 +40,9 @@ https://www.blackrock.com/uk/individual/products/318925/ishares-msci-europe-pari
 **Description**
 https://www.ishares.com/ch/privatkunden/de/produkte/251954/ishares-stoxx-europe-600-oil-gas-ucits-etf-de-fund#/
 
-## Understanding of ETF Flow
-<img width="470" height="228" alt="image" src="https://github.com/user-attachments/assets/0bc3656d-5ec1-4c01-9629-f71ac589e9e9" />
-
-
 **Data Quality** 
 - Daily data since Fund has been mad in arround 2002
 - Date, Curreny (EUR), NAV per Share, Share Outstanding, Total Net Assets, Fund Return Series, Benchmark Return Series
+
+  ## Understanding of ETF Flow
+<img width="470" height="228" alt="image" src="[https://github.com/user-attachments/assets/0bc3656d-5ec1-4c01-9629-f71ac589e9e9](https://image.capital.de/31023828/t/zm/v1/w960/r0/-/etf-handel-jpg.jpg" />
