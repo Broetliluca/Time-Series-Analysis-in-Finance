@@ -49,7 +49,7 @@ https://www.ishares.com/ch/privatkunden/de/produkte/251954/ishares-stoxx-europe-
 - Date, Curreny (EUR), NAV per Share, Share Outstanding, Total Net Assets, Fund Return Series, Benchmark Return Series
 
   ## Understanding of ETF Flow
-**Articel:**https://www.capital.de/geld-versicherungen/wie-der-etf-handel-funktioniert
+**Articel:** https://www.capital.de/geld-versicherungen/wie-der-etf-handel-funktioniert
 
 
 ![ETF Handel](https://image.capital.de/31023828/t/zm/v1/w960/r0/-/etf-handel-jpg.jpg)
