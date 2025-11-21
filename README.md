@@ -6,7 +6,7 @@ Shared Folder for Study Project
 - Luca Signorini
 
 ## General idea of the case study
-**Einfluss von CO₂-Zertifikatpreisen auf die Renditen oder Preise von "nachhaltigen" ETF's und fossil-lastigen ETF's**
+**How do changes in EU ETS carbon allowance prices affect the returns of sustainable (Paris-Aligned) ETFs compared to carbon-intensive ETFs**
 
 ## Brief description of the data and data sources to be used
 - CO₂-Zertifikatpreise -> EU ETS
