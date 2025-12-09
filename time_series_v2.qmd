@@ -1,0 +1,440 @@
+---
+title: "Time Series Analysis in Finance"
+subtitle: "How do changes in EU ETS carbon allowance prices affect the returns of sustainable ETFs compared to carbon-intensive ETFs"
+author:
+  - name: "Luca Signorini"
+  - name: "Mattia Bettoja"
+date: "`r format(Sys.Date(), '%Y-%m-%d')`"
+format:
+  html:
+    theme: journal
+    toc: true
+    toc-depth: 3
+    toc-floating: true
+    df-print: paged
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
+
+# Data Load & Reprocessing
+library(tidyverse)
+library(readr)
+library(lubridate)
+library(zoo)
+library(tseries)
+library(vars)
+library(rugarch)
+library(corrplot)
+library(lmtest)
+
+# EDA
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(moments)
+```
+
+# 1. Introduction
+
+This project investigates how **EU ETS carbon allowance prices** influence the performance of two ETFs:
+
+-   **Sustainable ETF:** iShares MSCI Europe *Paris-Aligned Climate*\
+    → expected to be less exposed to rising carbon prices
+
+-   **Carbon-intensive ETF:** iShares STOXX Europe 600 *Oil & Gas*\
+    → expected to react negatively to rising carbon prices
+
+The goal is to compare **returns, relationships, and volatility patterns** across these series.
+
+(Add sources EU ETS explanation, carbon pricing mechanics, ETF methodology.)
+
+# 2. Background
+
+## 2.1 EU ETS Carbon Prices
+
+EU ETS allowances represent the right to emit one tonne of CO₂. Prices fluctuate based on supply, policy changes, and industrial demand.
+
+[Source](https://www.blackrock.com/uk/individual/products/318925/ishares-msci-europe-paris-aligned-climate-ucits-etf){target="\_blank"} (https://icapcarbonaction.com/en/ets-prices)
+
+## 2.2 Paris-Aligned Climate ETF
+
+Tracks companies aligned with the Paris climate transition pathway. Expected to be less carbon-sensitive.
+
+[Source](https://www.blackrock.com/uk/individual/products/318925/ishares-msci-europe-paris-aligned-climate-ucits-etf){target="\_blank"} (https://www.blackrock.com/uk/individual/products/318925/ishares-msci-europe-paris-aligned-climate-ucits-etf)
+
+## 2.3 Oil & Gas ETF
+
+Tracks fossil-fuel-intensive companies whose profitability depends heavily on carbon exposure.
+
+[Source](https://www.ishares.com/ch/privatkunden/de/produkte/251954/ishares-stoxx-europe-600-oil-gas-ucits-etf-de-fund#/){target="\_blank"} (https://www.ishares.com/ch/privatkunden/de/produkte/251954/ishares-stoxx-europe-600-oil-gas-ucits-etf-de-fund#/)
+
+# 3. Method Overview
+
+We apply fundamental time series steps:
+
+1.  **Import data**
+2.  **Clean & merge datasets**
+3.  **Compute log-returns**
+4.  **Exploratory data analysis (EDA)**
+5.  **Prepare for later modeling (VAR, Granger, GARCH)**
+6.  
+
+# 4. Data Loading & Preprocessing
+
+## 4.1 Load datasets from GitHub
+
+```{r load}
+base <- "https://raw.githubusercontent.com/Broetliluca/Time-Series-Analysis-in-Finance/main/.csv%20Data/"
+
+url_eua <- paste0(base, "icap-graph-price-data-2019-01-07-2025-11-20.csv")
+url_pa  <- paste0(base, "iShares-MSCI-Europe-Paris-Aligned-Climate-UCITS-ETF-EUR-Acc_fund.csv")
+url_oil <- paste0(base, "STOXX-Europe-600-Oil--Gas-UCITS-ETF-DE_fund.csv")
+
+eua_raw  <- read_csv(url_eua, show_col_types = FALSE)
+pa_raw   <- read_csv(url_pa,  show_col_types = FALSE)
+oil_raw  <- read_csv(url_oil, show_col_types = FALSE)
+```
+
+------------------------------------------------------------------------
+
+## 4.2 Clean EUA carbon price data
+
+Structure confirmed:
+
+-   First row = metadata\
+-   Columns: `Date_raw`, `Primary`, `Secondary`, others
+
+```{r clean_eua}
+# Ensure tibble format
+eua_raw <- as_tibble(eua_raw)
+
+# Remove first descriptive row safely
+eua_tmp <- eua_raw %>% slice(-1)
+
+# Clean EUA data
+eua_clean <- eua_tmp %>%
+  rename(
+    Date_raw  = `...1`,
+    Primary   = `...5`,
+    Secondary = `...6`
+  ) %>%
+  mutate(
+    Date      = as.Date(Date_raw),
+    Primary   = suppressWarnings(parse_number(Primary)),
+    Secondary = suppressWarnings(parse_number(Secondary)),
+    EUA_Price = if_else(!is.na(Primary), Primary, Secondary)
+  ) %>%
+  dplyr::select(Date, EUA_Price) %>%
+  arrange(Date)
+
+head(eua_clean)
+
+```
+
+------------------------------------------------------------------------
+
+## 4.3 Clean Paris-Aligned ETF data
+
+This dataset is *semicolon-separated inside a single column*.
+
+```{r clean_pa}
+# Ensure PA data is a tibble
+pa_raw <- as_tibble(pa_raw)
+
+# Split the single-column format
+pa_tmp <- pa_raw %>%
+  separate(
+    col = 1,
+    into = c("Date_raw","Currency","NAV","Shares","Assets","FundRet","BenchRet"),
+    sep = ";",
+    fill = "right",
+    extra = "merge"
+  )
+
+# Clean
+pa_clean <- pa_tmp %>%
+  mutate(
+    Date_raw = str_replace(Date_raw, "\\.", "/"),
+    Date     = suppressWarnings(dmy(Date_raw)),
+    NAV      = suppressWarnings(parse_number(NAV))
+  ) %>%
+  dplyr::select(Date, PA_NAV = NAV) %>%
+  filter(!is.na(Date)) %>%
+  arrange(Date)
+
+head(pa_clean)
+```
+
+------------------------------------------------------------------------
+
+## 4.4 Clean Oil & Gas ETF data
+
+Same semicolon-separated structure.
+
+```{r clean_oil}
+# Ensure tibble
+oil_raw <- as_tibble(oil_raw)
+
+# Split single-column format
+oil_tmp <- oil_raw %>%
+  tidyr::separate(
+    col  = 1,
+    into = c("Date_raw","Currency","NAV","Shares","Assets","FundRet","BenchRet"),
+    sep  = ";",
+    fill = "right",
+    extra = "merge"
+  )
+
+# Clean OIL ETF data
+oil_clean_full <- oil_tmp %>%
+  dplyr::mutate(
+    # Trim whitespace
+    Date_raw = stringr::str_trim(Date_raw),
+
+    # Fix missing dot before the year (Juli2025 → Juli.2025)
+    Date_raw = stringr::str_replace(Date_raw,
+                                    "([A-Za-zäöüÄÖÜ]+)([0-9]{4})", 
+                                    "\\1.\\2"),
+
+    # Replace all dots with slashes (31.Juli.2025 → 31/Juli/2025)
+    Date_str = stringr::str_replace_all(Date_raw, "\\.", "/"),
+
+    # Parse with German locale because of month names like "Juli"
+    Date     = suppressWarnings(lubridate::dmy(Date_str, locale = "de_DE")),
+
+    # Parse NAV
+    NAV_num  = suppressWarnings(readr::parse_number(NAV))
+  ) %>%
+  dplyr::filter(!is.na(Date)) %>%  # <-- REQUIRED: remove invalid parsed rows
+  dplyr::arrange(Date)
+
+
+# Keep only Date + NAV
+oil_clean <- oil_clean_full[, c("Date", "NAV_num")]
+names(oil_clean)[2] <- "OIL_NAV"
+
+# Check Parseing
+sum(is.na(oil_clean$Date))
+
+head(oil_clean)
+
+```
+
+------------------------------------------------------------------------
+
+## 4.5 Align overlapping date range & merge datasets
+
+```{r merge}
+start_date <- max(
+  min(eua_clean$Date, na.rm = TRUE),
+  min(pa_clean$Date,  na.rm = TRUE),
+  min(oil_clean$Date, na.rm = TRUE)
+)
+
+end_date <- min(
+  max(eua_clean$Date, na.rm = TRUE),
+  max(pa_clean$Date,  na.rm = TRUE),
+  max(oil_clean$Date, na.rm = TRUE)
+)
+
+# Filter each series to the common window
+eua_f <- eua_clean %>% dplyr::filter(Date >= start_date, Date <= end_date)
+pa_f  <- pa_clean  %>% dplyr::filter(Date >= start_date, Date <= end_date)
+oil_f <- oil_clean %>% dplyr::filter(Date >= start_date, Date <= end_date)
+
+# Merge step by step
+merged <- eua_f %>%
+  dplyr::inner_join(pa_f,  by = "Date") %>%
+  dplyr::inner_join(oil_f, by = "Date") %>%
+  dplyr::arrange(Date)
+
+head(merged)
+```
+
+------------------------------------------------------------------------
+
+## 4.6 Compute log-returns
+
+```{r returns}
+returns <- merged %>%
+  dplyr::mutate(
+    EUA_ret = log(EUA_Price / dplyr::lag(EUA_Price)),
+    PA_ret  = log(PA_NAV    / dplyr::lag(PA_NAV)),
+    OIL_ret = log(OIL_NAV   / dplyr::lag(OIL_NAV))
+  ) %>%
+  tidyr::drop_na()
+
+head(returns)
+```
+
+------------------------------------------------------------------------
+
+# 5. Exploratory Data Analysis (EDA)
+
+## 5.1 Summary statistics
+
+```{r stats}
+# Calculate main Statistic measurements
+stats_tbl <- returns %>%
+  summarise(
+    mean_EUA = mean(EUA_ret),
+    sd_EUA   = sd(EUA_ret),
+    skew_EUA = skewness(EUA_ret),
+    kurt_EUA = kurtosis(EUA_ret),
+
+    mean_PA = mean(PA_ret),
+    sd_PA   = sd(PA_ret),
+    skew_PA = skewness(PA_ret),
+    kurt_PA = kurtosis(PA_ret),
+
+    mean_OIL = mean(OIL_ret),
+    sd_OIL   = sd(OIL_ret),
+    skew_OIL = skewness(OIL_ret),
+    kurt_OIL = kurtosis(OIL_ret)
+  )
+
+# Transpose the Table
+stats_tbl_tidy <- stats_tbl %>%
+  pivot_longer(cols = everything(),
+               names_to = c("stat", "asset"),
+               names_sep = "_") %>%
+  pivot_wider(names_from = asset, values_from = value) %>%
+  rename(
+    Statistic = stat,
+    EUA = EUA,
+    PA = PA,
+    OIL = OIL
+  )
+
+stats_tbl_tidy # Print Table
+```
+
+------------------------------------------------------------------------
+
+## 5.2 Time series plot of returns
+
+```{r plot_returns}
+# Price levels single and merged
+eua_clean %>%
+  dplyr::filter(Date >= as.Date("2021-07-27")) %>%
+  dplyr::select(Date, EUA_Price) %>%
+  ggplot(aes(Date, EUA_Price)) +
+  geom_line(color = "firebrick") +
+  labs(
+    title = "EUA Carbon Price Time Series (Raw)",
+    y = "EUA Price",
+    x = "Date"
+  ) +
+  theme_minimal()
+
+pa_clean %>%
+  dplyr::filter(Date >= as.Date("2021-07-27")) %>%
+  dplyr::select(Date, PA_NAV) %>%
+  ggplot(aes(Date, PA_NAV)) +
+  geom_line(color = "steelblue") +
+  labs(
+    title = "Paris-Aligned ETF Time Series (Raw)",
+    y = "NAV",
+    x = "Date"
+  ) +
+  theme_minimal()
+
+oil_clean %>%
+  dplyr::filter(Date >= as.Date("2021-07-27")) %>%
+  dplyr::select(Date, OIL_NAV) %>%
+  ggplot(aes(Date, OIL_NAV)) +
+  geom_line(color = "darkgreen") +
+  labs(
+    title = "Oil & Gas ETF Time Series (Zoom: 2021–Present)",
+    y = "NAV",
+    x = "Date"
+  ) +
+  theme_minimal()
+
+merged %>%
+  dplyr::select(Date, EUA_Price, PA_NAV, OIL_NAV) %>%
+  pivot_longer(-Date) %>%
+  ggplot(aes(Date, value, color = name)) +
+  geom_line() +
+  labs(title = "Price Levels: EUA Carbon Price, Paris-Aligned ETF, Oil & Gas ETF",
+       y = "Price / NAV",
+       x = "Date")
+
+
+# Returns
+returns %>%
+  dplyr::select(Date, EUA_ret, PA_ret, OIL_ret) %>%
+  tidyr::pivot_longer(-Date, names_to = "Series", values_to = "Return") %>%
+  ggplot(aes(Date, Return, color = Series)) +
+  geom_line(alpha = 0.7) +
+  labs(
+    title = "Daily Log Returns: EUA vs. Paris-Aligned ETF vs. Oil & Gas ETF",
+    x = "Date",
+    y = "Log Return"
+  ) +
+  theme_minimal()
+
+```
+
+------------------------------------------------------------------------
+
+## 5.3 Rolling 30-day volatility
+
+```{r rolling}
+# Compute daily log-returns
+returns <- merged %>%
+  dplyr::mutate(
+    EUA_ret = log(EUA_Price / dplyr::lag(EUA_Price)),
+    PA_ret  = log(PA_NAV    / dplyr::lag(PA_NAV)),
+    OIL_ret = log(OIL_NAV   / dplyr::lag(OIL_NAV))
+  ) %>%
+  tidyr::drop_na()
+
+# Compute 30-day rolling volatility
+returns_rolling <- returns %>%
+  dplyr::mutate(
+    vol_EUA = zoo::rollapply(EUA_ret, width = 30, FUN = sd, fill = NA, align = "right"),
+    vol_PA  = zoo::rollapply(PA_ret,  width = 30, FUN = sd, fill = NA, align = "right"),
+    vol_OIL = zoo::rollapply(OIL_ret, width = 30, FUN = sd, fill = NA, align = "right")
+  )
+
+# Plot rolling volatility
+returns_rolling %>%
+  dplyr::select(Date, vol_EUA, vol_PA, vol_OIL) %>%
+  tidyr::pivot_longer(-Date, names_to = "Series", values_to = "Volatility") %>%
+  ggplot(aes(Date, Volatility, color = Series)) +
+  geom_line() +
+  labs(
+    title = "Rolling 30-Day Volatility (Standard Deviation of Daily Log Returns)",
+    y = "Volatility (σ)",
+    x = "Date"
+  ) +
+  theme_minimal()
+
+```
+
+------------------------------------------------------------------------
+
+## 5.4 Correlation matrix
+
+```{r corrmatrix}
+corr_mat <- cor(returns[, c("EUA_ret","PA_ret","OIL_ret")])
+
+corrplot::corrplot(corr_mat, method="color", addCoef.col="black")
+
+```
+
+**Interpretation** The correlation matrix shows that daily EUA carbon price returns have almost no linear relationship with either the Paris-Aligned ETF or the Oil & Gas ETF (correlations ≈ 0.09). This suggests that short-term carbon price fluctuations do not immediately affect equity performance in either sector.
+
+In contrast, the Paris-Aligned ETF and the Oil & Gas ETF exhibit a moderate correlation of 0.45, reflecting their shared exposure to broader equity market movements. These results imply that carbon prices operate somewhat independently from daily stock market dynamics and support the need for more advanced dynamic models such as VAR or Granger causality to detect potential lagged effects.
+
+------------------------------------------------------------------------
