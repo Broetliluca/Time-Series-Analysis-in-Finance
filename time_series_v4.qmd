@@ -52,11 +52,11 @@ The project examines how changes in EU ETS carbon allowance prices are related t
 
 ## EU ETS Carbon Prices
 
-The EU Emissions Trading System (EU ETS) is the European Union’s main policy instrument for reducing greenhouse gas emissions. It operates as a cap-and-trade system, where a fixed cap is set on the total amount of CO2 that regulated entities are allowed to emit. Emission allowances (EUAs), each representing the right to emit one tonne of CO2 = = , are either allocated or auctioned to firms, which must surrender a corresponding number of allowances for their verified emissions.
+The EU Emissions Trading System (EU ETS) is the European Union’s main policy instrument for reducing greenhouse gas emissions. It operates as a cap-and-trade system, where a fixed cap is set on the total amount of CO2 that regulated entities are allowed to emit. Emission allowances (EUAs), each representing the right to emit one tonne of CO2, are either allocated or auctioned to firms, which must surrender a corresponding number of allowances for their verified emissions.
 
 EU ETS prices emerge from trading these allowances on the market and reflect expectations about future emissions constraints, regulatory stringency, and economic activity. When climate policy tightens or industrial demand for emissions rises, allowance prices tend to increase; when economic activity weakens or policy uncertainty rises, prices may fall.
 
-Because carbon costs directly affect production expenses for emission = intensive industries, EU ETS prices are expected to influence corporate profitability, investment decisions, and risk perceptions, especially in sectors such as energy, utilities, and heavy industry. More broadly, carbon prices can affect financial markets by altering expected cash flows, increasing regulatory risk, and shifting capital toward lower-carbon business models, making them a potentially important factor for asset returns and volatility.
+Because carbon costs directly affect production expenses for emission-intensive industries, EU ETS prices are expected to influence corporate profitability, investment decisions, and risk perceptions, especially in sectors such as energy, utilities, and heavy industry. More broadly, carbon prices can affect financial markets by altering expected cash flows, increasing regulatory risk, and shifting capital toward lower-carbon business models, making them a potentially important factor for asset returns and volatility.
 
 [Source](https://www.blackrock.com/uk/individual/products/318925/ishares-msci-europe-paris-aligned-climate-ucits-etf){target="\_blank"} (https://icapcarbonaction.com/en/ets-prices)
 
@@ -524,6 +524,7 @@ ArchTest(returns$OIL_ret)
 
 ```
 The ARCH LM test strongly rejects homoskedasticity for all return series, confirming volatility clustering and justifying the use of GARCH models.
+\newpage
 
 ## GARCH(1,1) Estimation
 
