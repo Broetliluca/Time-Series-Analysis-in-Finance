@@ -1,6 +1,6 @@
 ---
 title: "Time Series Analysis in Finance"
-subtitle: "How do changes in EU ETS carbon allowance prices affect the returns of sustainable ETFs compared to carbon-intensive ETFs"
+subtitle: "Carbon Allowance Prices and ETF Returns: A Comparative Analysis of Sustainable and Carbon-Intensive Assets in the EU"
 author:
   - name: "Luca Signorini"
   - name: "Mattia Bettoja"
@@ -46,47 +46,48 @@ library(FinTS)
 
 # Introduction
 
-This project investigates how **EU ETS carbon allowance prices** influence the performance of two ETFs:
-
--   **Sustainable ETF:** iShares MSCI Europe *Paris-Aligned Climate*\
-    → expected to be less exposed to rising carbon prices
-
--   **Carbon-intensive ETF:** iShares STOXX Europe 600 *Oil & Gas*\
-    → expected to react negatively to rising carbon prices
-
-The goal is to compare **returns, relationships, and volatility patterns** across these series.
+The project examines how changes in EU ETS carbon allowance prices are related to the financial behaviour of equity markets with different carbon exposures. Specifically, it compares a sustainable, Paris-Aligned equity ETF with a carbon-intensive Oil & Gas ETF to assess whether carbon pricing is reflected in asset returns, dynamic relationships, and risk dynamics. Utilising daily data, the analysis employs time-series methods to study return behaviour, lead–lag relationships, and volatility patterns across markets. The overarching aim is to evaluate whether carbon prices act as a driver of financial performance or risk, and whether sustainable assets exhibit greater resilience to carbon-related uncertainty than carbon-intensive investments.
 
 # Background
 
 ## EU ETS Carbon Prices
 
-EU ETS allowances represent the right to emit one tonne of CO₂. Prices fluctuate based on supply, policy changes, and industrial demand.
+The EU Emissions Trading System (EU ETS) is the European Union’s main policy instrument for reducing greenhouse gas emissions. It operates as a cap-and-trade system, where a fixed cap is set on the total amount of CO₂ that regulated entities are allowed to emit. Emission allowances (EUAs), each representing the right to emit one tonne of CO₂, are either allocated or auctioned to firms, which must surrender a corresponding number of allowances for their verified emissions.
+
+EU ETS prices emerge from trading these allowances on the market and reflect expectations about future emissions constraints, regulatory stringency, and economic activity. When climate policy tightens or industrial demand for emissions rises, allowance prices tend to increase; when economic activity weakens or policy uncertainty rises, prices may fall.
+
+Because carbon costs directly affect production expenses for emission-intensive industries, EU ETS prices are expected to influence corporate profitability, investment decisions, and risk perceptions—especially in sectors such as energy, utilities, and heavy industry. More broadly, carbon prices can affect financial markets by altering expected cash flows, increasing regulatory risk, and shifting capital toward lower-carbon business models, making them a potentially important factor for asset returns and volatility.
 
 [Source](https://www.blackrock.com/uk/individual/products/318925/ishares-msci-europe-paris-aligned-climate-ucits-etf){target="\_blank"} (https://icapcarbonaction.com/en/ets-prices)
 
 ## Paris-Aligned Climate ETF
 
-Tracks companies aligned with the Paris climate transition pathway. Expected to be less carbon-sensitive.
+The iShares MSCI Europe Paris-Aligned Climate UCITS ETF tracks European companies whose business models are aligned with the Paris Agreement’s climate transition objectives. The index applies strict decarbonization criteria, including reduced exposure to high-emission activities, forward-looking emissions reduction targets, and increased weighting toward firms with stronger climate performance.
+
+This ETF is well suited for the analysis because it represents a broad, diversified European equity portfolio that explicitly incorporates climate considerations while remaining exposed to overall market dynamics. As an EU-domiciled, Paris-aligned fund, it provides a natural benchmark for sustainable equity exposure within the same regulatory and economic environment as the EU ETS, making it an appropriate counterpart to carbon-intensive assets when assessing the financial relevance of carbon pricing.
 
 [Source](https://www.blackrock.com/uk/individual/products/318925/ishares-msci-europe-paris-aligned-climate-ucits-etf){target="\_blank"} (https://www.blackrock.com/uk/individual/products/318925/ishares-msci-europe-paris-aligned-climate-ucits-etf)
 
 ## Oil & Gas ETF
 
-Tracks fossil-fuel-intensive companies whose profitability depends heavily on carbon exposure.
+The iShares STOXX Europe 600 Oil & Gas UCITS ETF tracks European companies operating in the oil and gas sector, including firms involved in exploration, production, refining, and distribution of fossil fuels. These companies are inherently carbon-intensive and are therefore directly exposed to carbon pricing, regulatory tightening, and transition risks arising from climate policy.
+
+This ETF is used in the analysis as a representative proxy for carbon-intensive equity exposure within the European market. Its strong linkage to fossil fuel activities makes it particularly relevant for assessing whether and how changes in EU ETS carbon allowance prices affect the financial performance and risk dynamics of firms with high emissions intensity, in contrast to climate-aligned investment strategies.
 
 [Source](https://www.ishares.com/ch/privatkunden/de/produkte/251954/ishares-stoxx-europe-600-oil-gas-ucits-etf-de-fund#/){target="\_blank"} (https://www.ishares.com/ch/privatkunden/de/produkte/251954/ishares-stoxx-europe-600-oil-gas-ucits-etf-de-fund#/)
 
+# Related Literature
+Aslan (2022) examines the interaction between EU ETS carbon allowance futures and European stock market sectors, focusing on volatility spillovers and market connectedness. The study finds that shocks in carbon markets can transmit to equity sectors, particularly during periods of heightened uncertainty such as energy market disruptions. Importantly, the results suggest that carbon prices affect financial markets mainly through volatility dynamics rather than through systematic effects on returns.
+
+This literature provides a useful reference point for our analysis. While Aslan (2022) studies sector-level stock indices, our project takes a simpler and more exploratory approach by examining two broad European ETFs. Building on this idea, we aim to assess whether similar relationships between carbon prices and financial market volatility can be observed in these ETFs using Granger causality and GARCH-based models.
+
+*Aydin Aslan, Peter N. Posch, Does carbon price volatility affect European stock market sectors? A connectedness network analysis, Finance Research Letters, Volume 50, 2022, 103318, ISSN 1544-6123, https://doi.org/10.1016/j.frl.2022.103318. (https://www.sciencedirect.com/science/article/pii/S1544612322004974)*
+
 # Method Overview
 
-We apply fundamental time series steps:
+The empirical analysis follows a structured time series methodology. First, the relevant datasets are imported, cleaned, and merged to ensure a consistent and comparable time span across all series. Log-returns are then computed to obtain stationary series suitable for econometric modeling.
 
-- **Import data**
-- **Clean & merge datasets**
-- **Compute log-returns**
-- **Exploratory data analysis (EDA)**
-- **Time Series Diagnostics**
-- **Check for relationship by applying Granger Causality Tests**
-- **Volatility Diagnostics by applying GARCH and GARCH-X Tests**
+Subsequently, exploratory data analysis is conducted to assess basic distributional properties and preliminary patterns. Time series diagnostics are applied to verify stationarity and model suitability. Dynamic relationships between carbon prices and ETF returns are examined using Granger causality tests within a VAR framework. Finally, volatility dynamics are analyzed through ARCH, GARCH, and GARCH-X models to investigate whether carbon price movements affect not only returns but also the risk structure of the assets.
 
 # Data Loading & Preprocessing
 
@@ -106,7 +107,7 @@ oil_raw  <- read_csv(url_oil, show_col_types = FALSE)
 
 ## Cleaning Data
 
-Several preprocessing steps were necessary to harmonize the datasets prior to analysis. Each dataset was first cleaned and transformed into a consistent structure. Subsequently, the series were merged over their common time span to ensure that observations for carbon prices, the Paris-Aligned ETF, and the Oil & Gas ETF are available for every time step. This procedure avoids inconsistencies arising from missing data and ensures comparability across series. A detailed description of the cleaning process is provided in the Appendix.
+Several preprocessing steps were necessary to harmonize the datasets prior to analysis. Each dataset was first cleaned and transformed into a consistent structure. Subsequently, the series were merged over their common time span to ensure that observations for carbon prices, the Paris-Aligned ETF, and the Oil & Gas ETF are available for every time step. This procedure avoids inconsistencies arising from missing data and ensures comparability across series. The use code of the cleaning process is provided in the Appendix.
 
 ```{r, clean_eua, include=FALSE}
 # Ensure tibble format
@@ -267,7 +268,7 @@ returns <- merged %>%
 
 knitr::kable(
   head(returns, 6),
-  caption = "Price and return for the thre datasets",
+  caption = "Price and return for the three datasets",
   booktabs = TRUE
 )
 ```
@@ -308,13 +309,14 @@ stats_tbl_tidy <- stats_tbl %>%
     PA = PA,
     OIL = OIL
   )
+
 knitr::kable(
   stats_tbl_tidy,
-  caption = "Statistical key numbers for the thre timeseries",
+  caption = "Statistical key numbers for the three timeseries",
   booktabs = TRUE
 )
 ```
-The high standard deviation and excess kurtosis of EUA returns reflect the speculative and policy-driven nature of the carbon market. Both ETFs display lower volatility, but the Oil & Gas ETF exhibits higher tail risk than the Paris-Aligned ETF.
+The high standard deviation and excess kurtosis of EUA returns reflect the policy-driven and expectation-sensitive structure of the EU carbon market. Both ETFs display lower volatility, but the Oil & Gas ETF exhibits higher tail risk than the Paris-Aligned ETF.
 
 ## Time series plot of returns
 
@@ -326,7 +328,7 @@ merged %>%
   ggplot(aes(Date, Value, color = Series)) +
   geom_line() +
   labs(
-    title = "Price Levels: EUA Carbon Price, Paris-Aligned ETF, Oil & Gas ETF",
+    title = "Price Levels",
     y = "Price / NAV",
     x = "Date"
   ) +
@@ -339,7 +341,7 @@ returns %>%
   ggplot(aes(Date, Return, color = Series)) +
   geom_line(alpha = 0.7) +
   labs(
-    title = "Daily Log Returns: EUA vs. Paris-Aligned ETF vs. Oil & Gas ETF",
+    title = "Daily Log Returns",
     x = "Date",
     y = "Log Return"
   ) +
@@ -377,7 +379,7 @@ returns_rolling %>%
   ggplot(aes(Date, Volatility, color = Series)) +
   geom_line() +
   labs(
-    title = "Rolling 30-Day Volatility (Standard Deviation of Daily Log Returns)",
+    title = "Rolling 30-Day Volatility",
     y = "Volatility (σ)",
     x = "Date"
   ) +
@@ -390,7 +392,7 @@ EUA carbon prices exhibit the highest and most unstable volatility, while the Pa
 
 ## Correlation matrix
 
-```{r corrmatrix, cache=TRUE, echo=FALSE, fig.height=3.5}
+```{r corrmatrix, cache=TRUE, echo=FALSE}
 corr_mat <- cor(returns[, c("EUA_ret","PA_ret","OIL_ret")])
 
 corrplot::corrplot(corr_mat, method="color", addCoef.col="black")
@@ -420,7 +422,8 @@ The ADF test rejects the presence of a unit root for all return series, confirmi
 
 # Relationship Tests
 
-**Do changes in carbon prices cause changes in ETF returns?**<br>
+**Do changes in carbon prices cause changes in ETF returns?**
+<br>
 The central research question of this study is whether movements in EU ETS carbon allowance prices lead to systematic changes in the returns of sustainable and carbon-intensive ETFs. To examine this, we focus on dynamic lead–lag relationships rather than simple correlations.
 
 Specifically, we apply Granger causality tests within a Vector Autoregression (VAR) framework. Granger causality does not imply true economic causation; instead, it tests whether past values of one variable contain statistically significant information for predicting another variable, beyond what is already contained in its own past.
@@ -438,7 +441,7 @@ By combining Granger causality tests with impulse response analysis, this sectio
 
 ## Granger Causality: EUA -> Oil & Gas ETF
 
-*Using daily data, we allow for up to ten lags (approximately two trading weeks) and select the optimal lag length via the Akaike Information Criterion, which is standard in high-frequency financial applications.*
+Using daily data, we allow for up to ten lags (approximately two trading weeks) and select the optimal lag length via the Akaike Information Criterion.
 
 ```{r, ganger causality eua-oil&gas, cache=TRUE, echo=FALSE}
 
@@ -664,11 +667,11 @@ garchx_coef_table <- as_tibble(coefs, rownames = "Parameter") %>%
   mutate(
     Parameter = recode(
       Parameter,
-      mu     = "Mean (μ)",
-      omega  = "Constant (ω)",
-      alpha1 = "ARCH effect (alpha)",
-      beta1  = "GARCH effect (beta)",
-      vxreg1 = "Carbon price effect (γ)"
+      mu     = "Mean",
+      omega  = "Constant",
+      alpha1 = "ARCH effect",
+      beta1  = "GARCH effect",
+      vxreg1 = "Carbon price effect"
     )
   ) %>%
   mutate(across(where(is.numeric), round, 4))
@@ -679,7 +682,7 @@ knitr::kable(
 )
 
 ```
-To test whether carbon prices directly affect risk rather than returns, we estimate a GARCH-X model including EUA returns in the variance equation of the Oil & Gas ETF. While volatility persistence remains extremely high, the coefficient on carbon price returns is not statistically significant. This indicates that daily carbon price movements do not directly drive ETF volatility once standard GARCH dynamics are accounted for. Elevated risk in carbon-intensive assets therefore reflects broader and more persistent sources of uncertainty rather than short-run carbon market shocks.
+While volatility persistence remains extremely high (GARCH effect), the coefficient on carbon price returns is not statistically significant. This indicates that daily carbon price movements do not directly drive ETF volatility once standard GARCH dynamics are accounted for. Elevated risk in carbon-intensive assets therefore reflects broader and more persistent sources of uncertainty rather than short-run carbon market shocks.
 
 ```{r, GARCH-X Test EUA effect on PA-ETF, cache=TRUE, echo=FALSE}
 # GARCH-X: Carbon price effects on Paris-Aligned ETF volatility
@@ -712,11 +715,11 @@ garchx_coef_table_pa <- as_tibble(coefs_pa, rownames = "Parameter") %>%
   mutate(
     Parameter = recode(
       Parameter,
-      mu     = "Mean (μ)",
-      omega  = "Constant (ω)",
-      alpha1 = "ARCH effect (alpha)",
-      beta1  = "GARCH effect (beta)",
-      vxreg1 = "Carbon price effect (γ)"
+      mu     = "Mean",
+      omega  = "Constant",
+      alpha1 = "ARCH effect",
+      beta1  = "GARCH effect",
+      vxreg1 = "Carbon price effect"
     )
   ) %>%
   mutate(across(where(is.numeric), round, 4))
@@ -729,9 +732,7 @@ knitr::kable(
 
 ```
 
-We estimate a GARCH-X model for the Paris-Aligned ETF to test whether EUA carbon price returns directly affect volatility. The results confirm significant ARCH and GARCH effects, indicating volatility clustering and moderate persistence (alpha + beta ≈ 0.89).
-
-However, the coefficient on carbon price returns is statistically insignificant (p ≈ 0.97) and close to zero. This suggests that short-term carbon price movements do not directly influence the volatility of the Paris-Aligned ETF once standard GARCH dynamics are accounted for.
+The estimated carbon price coefficient is close to zero and statistically clearly insignificant (p ≈ 0.97). This suggests that short-term fluctuations in EU ETS carbon prices do not exert a direct effect on the volatility of the Paris-Aligned ETF beyond the volatility persistence captured by the GARCH structure.
 
 Overall, the volatility of sustainable assets appears largely insulated from carbon market fluctuations, supporting the view that Paris-Aligned ETFs are less exposed to carbon-related regulatory and transition risk than carbon-intensive assets.
 
@@ -754,7 +755,11 @@ Third, the GARCH-X specification includes only contemporaneous carbon price retu
 
 Extending the analysis to single stocks, carbon-intensive sub-industries, or event-based approaches around major EU ETS policy announcements may help identify more direct channels through which carbon pricing influences financial markets.
 
-# Appendix - Codelines by Chapter and task
+# Disclosure of GenAI use
+
+Generative AI (OpenAI ChatGPT, GPT-5) was used to support the structuring, language refinement, and methodological clarification of this project. All outputs were critically reviewed and edited by the authors, who take full responsibility for the final content.
+
+# Appendix
 
 ## Data Loading & Preprocessin
 
@@ -979,7 +984,7 @@ merged %>%
   ggplot(aes(Date, Value, color = Series)) +
   geom_line() +
   labs(
-    title = "Price Levels: EUA Carbon Price, Paris-Aligned ETF, Oil & Gas ETF",
+    title = "Price Levels",
     y = "Price / NAV",
     x = "Date"
   ) +
@@ -992,7 +997,7 @@ returns %>%
   ggplot(aes(Date, Return, color = Series)) +
   geom_line(alpha = 0.7) +
   labs(
-    title = "Daily Log Returns: EUA vs. Paris-Aligned ETF vs. Oil & Gas ETF",
+    title = "Daily Log Returns",
     x = "Date",
     y = "Log Return"
   ) +
@@ -1026,7 +1031,7 @@ returns_rolling %>%
   ggplot(aes(Date, Volatility, color = Series)) +
   geom_line() +
   labs(
-    title = "Rolling 30-Day Volatility (Standard Deviation of Daily Log Returns)",
+    title = "Rolling 30-Day Volatility",
     y = "Volatility (σ)",
     x = "Date"
   ) +
@@ -1246,11 +1251,11 @@ garchx_coef_table <- as_tibble(coefs, rownames = "Parameter") %>%
   mutate(
     Parameter = recode(
       Parameter,
-      mu     = "Mean (μ)",
-      omega  = "Constant (ω)",
-      alpha1 = "ARCH effect (alpha)",
-      beta1  = "GARCH effect (beta)",
-      vxreg1 = "Carbon price effect (γ)"
+      mu     = "Mean",
+      omega  = "Constant",
+      alpha1 = "ARCH effect",
+      beta1  = "GARCH effect",
+      vxreg1 = "Carbon price effect"
     )
   ) %>%
   mutate(across(where(is.numeric), round, 4))
@@ -1295,11 +1300,11 @@ garchx_coef_table_pa <- as_tibble(coefs_pa, rownames = "Parameter") %>%
   mutate(
     Parameter = recode(
       Parameter,
-      mu     = "Mean (μ)",
-      omega  = "Constant (ω)",
-      alpha1 = "ARCH effect (alpha)",
-      beta1  = "GARCH effect (beta)",
-      vxreg1 = "Carbon price effect (γ)"
+      mu     = "Mean",
+      omega  = "Constant",
+      alpha1 = "ARCH effect",
+      beta1  = "GARCH effect",
+      vxreg1 = "Carbon price effect"
     )
   ) %>%
   mutate(across(where(is.numeric), round, 4))
