@@ -46,17 +46,17 @@ library(FinTS)
 
 # Introduction
 
-The project examines how changes in EU ETS carbon allowance prices are related to the financial behaviour of equity markets with different carbon exposures. Specifically, it compares a sustainable, Paris-Aligned equity ETF with a carbon-intensive Oil & Gas ETF to assess whether carbon pricing is reflected in asset returns, dynamic relationships, and risk dynamics. Utilising daily data, the analysis employs time-series methods to study return behaviour, lead–lag relationships, and volatility patterns across markets. The overarching aim is to evaluate whether carbon prices act as a driver of financial performance or risk, and whether sustainable assets exhibit greater resilience to carbon-related uncertainty than carbon-intensive investments.
+The project examines how changes in EU ETS carbon allowance prices are related to the financial behaviour of equity markets with different carbon exposures. Specifically, it compares a sustainable, Paris-Aligned equity ETF with a carbon-intensive Oil & Gas ETF to assess whether carbon pricing is reflected in asset returns, dynamic relationships, and risk dynamics. Utilising daily data, the analysis employs time-series methods to study return behaviour, lead-lag relationships, and volatility patterns across markets. The overarching aim is to evaluate whether carbon prices act as a driver of financial performance or risk, and whether sustainable assets exhibit greater resilience to carbon-related uncertainty than carbon-intensive investments.
 
 # Background
 
 ## EU ETS Carbon Prices
 
-The EU Emissions Trading System (EU ETS) is the European Union’s main policy instrument for reducing greenhouse gas emissions. It operates as a cap-and-trade system, where a fixed cap is set on the total amount of CO₂ that regulated entities are allowed to emit. Emission allowances (EUAs), each representing the right to emit one tonne of CO₂, are either allocated or auctioned to firms, which must surrender a corresponding number of allowances for their verified emissions.
+The EU Emissions Trading System (EU ETS) is the European Union’s main policy instrument for reducing greenhouse gas emissions. It operates as a cap-and-trade system, where a fixed cap is set on the total amount of CO2 that regulated entities are allowed to emit. Emission allowances (EUAs), each representing the right to emit one tonne of CO2 = = , are either allocated or auctioned to firms, which must surrender a corresponding number of allowances for their verified emissions.
 
 EU ETS prices emerge from trading these allowances on the market and reflect expectations about future emissions constraints, regulatory stringency, and economic activity. When climate policy tightens or industrial demand for emissions rises, allowance prices tend to increase; when economic activity weakens or policy uncertainty rises, prices may fall.
 
-Because carbon costs directly affect production expenses for emission-intensive industries, EU ETS prices are expected to influence corporate profitability, investment decisions, and risk perceptions—especially in sectors such as energy, utilities, and heavy industry. More broadly, carbon prices can affect financial markets by altering expected cash flows, increasing regulatory risk, and shifting capital toward lower-carbon business models, making them a potentially important factor for asset returns and volatility.
+Because carbon costs directly affect production expenses for emission = intensive industries, EU ETS prices are expected to influence corporate profitability, investment decisions, and risk perceptions, especially in sectors such as energy, utilities, and heavy industry. More broadly, carbon prices can affect financial markets by altering expected cash flows, increasing regulatory risk, and shifting capital toward lower-carbon business models, making them a potentially important factor for asset returns and volatility.
 
 [Source](https://www.blackrock.com/uk/individual/products/318925/ishares-msci-europe-paris-aligned-climate-ucits-etf){target="\_blank"} (https://icapcarbonaction.com/en/ets-prices)
 
@@ -81,7 +81,7 @@ Aslan (2022) examines the interaction between EU ETS carbon allowance futures an
 
 This literature provides a useful reference point for our analysis. While Aslan (2022) studies sector-level stock indices, our project takes a simpler and more exploratory approach by examining two broad European ETFs. Building on this idea, we aim to assess whether similar relationships between carbon prices and financial market volatility can be observed in these ETFs using Granger causality and GARCH-based models.
 
-*Aydin Aslan, Peter N. Posch, Does carbon price volatility affect European stock market sectors? A connectedness network analysis, Finance Research Letters, Volume 50, 2022, 103318, ISSN 1544-6123, https://doi.org/10.1016/j.frl.2022.103318. (https://www.sciencedirect.com/science/article/pii/S1544612322004974)*
+[Source](https://www.sciencedirect.com/science/article/pii/S1544612322004974){target="\_blank"} Aydin Aslan, Peter N. Posch, Does carbon price volatility affect European stock market sectors? A connectedness network analysis, Finance Research Letters, Volume 50, 2022, 103318, ISSN 1544-6123, https://doi.org/10.1016/j.frl.2022.103318. (https://www.sciencedirect.com/science/article/pii/S1544612322004974)
 
 # Method Overview
 
@@ -424,7 +424,7 @@ The ADF test rejects the presence of a unit root for all return series, confirmi
 
 **Do changes in carbon prices cause changes in ETF returns?**
 <br>
-The central research question of this study is whether movements in EU ETS carbon allowance prices lead to systematic changes in the returns of sustainable and carbon-intensive ETFs. To examine this, we focus on dynamic lead–lag relationships rather than simple correlations.
+The central research question of this study is whether movements in EU ETS carbon allowance prices lead to systematic changes in the returns of sustainable and carbon-intensive ETFs. To examine this, we focus on dynamic lead-lag relationships rather than simple correlations.
 
 Specifically, we apply Granger causality tests within a Vector Autoregression (VAR) framework. Granger causality does not imply true economic causation; instead, it tests whether past values of one variable contain statistically significant information for predicting another variable, beyond what is already contained in its own past.
 
@@ -452,7 +452,7 @@ var_oil <- VAR(returns[, c("EUA_ret","OIL_ret")], p = lag_oil)
 causality(var_oil, cause = "EUA_ret")
 
 ```
-The Granger causality test finds no evidence of lagged causal effects from EUA carbon price returns to Oil & Gas ETF returns, while the significant instantaneous causality suggests that both markets respond contemporaneously to common external shocks rather than exhibiting a predictive lead–lag relationship.
+The Granger causality test finds no evidence of lagged causal effects from EUA carbon price returns to Oil & Gas ETF returns, while the significant instantaneous causality suggests that both markets respond contemporaneously to common external shocks rather than exhibiting a predictive lead-lag relationship.
 
 ## Granger Causality: EUA -> Paris Aligned ETF
 
