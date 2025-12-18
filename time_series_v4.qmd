@@ -7,7 +7,7 @@ author:
 date: "`r format(Sys.Date(), '%Y-%m-%d')`"
 format:
   pdf:
-    documentclass: scrartcl   # or article
+    documentclass: scrartcl
     toc: true
     number-sections: true
     fontsize: 9pt
@@ -318,7 +318,7 @@ The high standard deviation and excess kurtosis of EUA returns reflect the specu
 
 ## Time series plot of returns
 
-```{r, plot_returns, cache=TRUE, echo=FALSE, fig.height=3.5}
+```{r, plot_returns, cache=TRUE, echo=FALSE}
 # Price levels (merged only)
 merged %>%
   dplyr::select(Date, EUA_Price, PA_NAV, OIL_NAV) %>%
@@ -352,7 +352,7 @@ Daily returns of all three series fluctuate around zero with no visible long-ter
 
 ## Rolling 30-day volatility
 
-```{r, rolling, cache=TRUE, echo=FALSE, fig.height=3.5}
+```{r, rolling, cache=TRUE, echo=FALSE}
 # Compute daily log-returns
 returns <- merged %>%
   dplyr::mutate(
@@ -427,9 +427,8 @@ Specifically, we apply Granger causality tests within a Vector Autoregression (V
 
 In this context, we examine whether lagged carbon price returns help predict:
 
-returns of the Oil & Gas ETF, representing carbon-intensive assets, and
-
-returns of the Paris-Aligned ETF, representing sustainable assets.
+- returns of the Oil & Gas ETF, representing carbon-intensive assets, and
+- returns of the Paris-Aligned ETF, representing sustainable assets.
 
 If carbon pricing is an important driver of financial performance, we would expect EUA returns to Granger-cause ETF returns—particularly for the carbon-intensive Oil & Gas ETF, which is more directly exposed to regulatory and transition risk.
 
@@ -736,7 +735,7 @@ However, the coefficient on carbon price returns is statistically insignificant 
 
 Overall, the volatility of sustainable assets appears largely insulated from carbon market fluctuations, supporting the view that Paris-Aligned ETFs are less exposed to carbon-related regulatory and transition risk than carbon-intensive assets.
 
-# 9 Conclusion
+# Conclusion
 This study examined whether changes in EU ETS carbon allowance prices affect the returns and volatility of sustainable and carbon-intensive ETFs. Using daily data, we combined correlation analysis, Granger causality tests, impulse response functions, and GARCH-type volatility models to distinguish between effects on expected returns and effects on risk.
 
 The results show no evidence of lagged causal effects from carbon price returns to ETF returns for either the Paris-Aligned ETF or the Oil & Gas ETF. Both ETFs exhibit significant instantaneous causality with EUA returns, indicating that carbon and equity markets respond contemporaneously to common shocks rather than through delayed transmission. Impulse response functions confirm that carbon price shocks do not generate persistent or statistically significant responses in ETF returns.
@@ -745,7 +744,7 @@ Volatility analysis reveals strong volatility clustering across all assets. Stan
 
 Overall, the findings suggest that EU ETS carbon prices act primarily as a coincident indicator rather than a leading driver of ETF returns or volatility at the daily frequency. Sustainable assets appear relatively insulated from carbon market fluctuations, while carbon-intensive assets exhibit higher and more persistent risk, but not directly attributable to daily carbon price changes.
 
-## 9.1 Limitations and Further Research
+## Limitations and Further Research
 
 Several limitations should be acknowledged. First, the analyzed ETFs are broad and diversified, meaning their returns and volatility are strongly influenced by general equity market movements. This may obscure more granular carbon price effects that could be detectable at the level of individual firms, sector-specific portfolios, or narrower industry ETFs.
 
